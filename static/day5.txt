@@ -1,0 +1,25 @@
+revisi sop presensi
+1. SS bukti sudah melakukan private chat ke MSDM Kader
+2. Telat diatas 30 menit dianggap tidak hadir di sesi tersebut namun boleh mengikuti acara 
+
+Evaluasi wawancara :
+1. Async datang wawancara cuma diwaktu foto
+2. Async join wawancara di dua tempat yang sama
+3. Async membuat forum sendiri sehingga tidak merespect 
+4. Peserta Async tidak sopan
+
+5 poin penting :
+1. Respect the sistem
+2. Respect the time
+3. Respect the people
+4. Judgement (dalam menilai hal jangan melihat sisi buruk)
+
+Tugas
+1 daemon
+1 bp
+2 decripy/bit/unix
+
+Tugas Medium
+Membuat artikel di medium dengan tema 'how things work' untuk mengajukan judul ada di spreadsheet dengan deadline tugas tanggal 28 juli
+
+Panjang artikel minimal 5 menit baca

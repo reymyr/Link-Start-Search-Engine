@@ -7,6 +7,6 @@
 {% block body %}
 <div class="content">
     <h1 style="text-align: center">Isi File</h1>
-    <p>{{task.data}}</p>
+    <p>{{task| safe}}</p>
 </div>
 {% endblock %}
