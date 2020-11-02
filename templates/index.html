@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Task Master</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1 style="text-align: center">Tubes Babi</h1>
+    {% if tasks|length < 1 %}
+    <h4 style="text-align: center">There are no file.</h4>
+    {% else %}
+    <table>
+        <tr>
+            <th>Filename</th>
+            <th>Added</>
+            <th>Actions</th>
+        </tr>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.name }}</td>
+            <td>{{ task.date_created.date() }}</td>
+            <td>
+                <a href="/delete/{{task.id}}">Delete</a>
+                <br>
+                <a href="/view/{{task.id}}">View</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <div class="form">
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <label for="filetxt2">InputFile</label>
+            <input type="file" name="filetxt" id="filetxt2">
+            <input type="submit" value="Add File">
+        </form>
+    </div>
+</div>
+{% endblock %}
