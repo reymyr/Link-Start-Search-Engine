@@ -1,9 +1,0 @@
-Software Engineering
-Book Recomendation :
--> Cracking Coding Interview
-
-Apa yang Diperlukan :
--> Basis data, alstrukdat, dan strategi algoritma dan belajar baik web/aplikasi/helper atau hal-hal lain yang kamu sukai
--> Menggabungkan ilmu-ilmu itu
--> Effective Engineering
--> Stay Hungry, Stay Foolish

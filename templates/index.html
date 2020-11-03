@@ -9,8 +9,16 @@
     <h1 style="text-align: center">Tubes Algeo</h1>
     {% if tasks|length < 1 %}
     <h4 style="text-align: center">There are no file.</h4>
-    <p>{{ len2 }}</p>
     {% else %}
+    <p>{{ Ikkeh }}</p>
+    <div class="form">
+        <form action="/" method="POST">
+            <label for="textQuery2"></label>
+            <input type="text" name="textquery" id="textQuery2">
+            <input type="hidden" name="Query">
+            <input type="submit" value="Add Query">
+        </form>
+    </div>
     <table>
         <tr>
             <th>Filename</th>
@@ -40,8 +48,26 @@
     <div class="form">
         <form action="/" method="POST" enctype="multipart/form-data">
             <input type="file" name="filetxt" id="filetxt2" multiple>
+            <input type="hidden" name="InputFile">
             <input type="submit" value="Add File">
         </form>
     </div>
 </div>
+<table>
+    <tr>
+        <th>Terms</th>
+        <th>Query</th>
+        {% for task in tasks %}
+        <th>{{ task.name }}</th>
+        {% endfor %}
+    </tr>
+    {% for i in range (arr| length) %}
+    <tr>
+        <td>{{ arr[i] }}</td>
+        {% for j in range (dcount) %}
+        <td>{{ arr2[i][j] }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}
