@@ -26,26 +26,29 @@ class Todo(db.Model):
 @app.route('/', methods=['POST','GET'])
 def index():
     if request.method == 'POST':
-        file = request.files['filetxt']
+        files = request.files.getlist("filetxt")
 
         try:
-            file.stream.seek(0) 
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-            wordlen = 0 
-            i = 0
-            with open(os.path.join(app.config['UPLOAD_FOLDER'], file.filename)) as f:
-                for line in f:
-                    if (i == 0):
-                        a_list = nltk.tokenize.sent_tokenize(line)
-                        frst_sentence = a_list[0]
-                    i = i + 1 
-                    # findall re dan metode punctuation ada kekurangan dan kelebihan masing2
-                    res = len(re.findall(r'\w+', line)) 
-                    # res = sum([i.strip(string.punctuation).isalpha() for i in line.split()])
-                    wordlen = wordlen + res
-            new_task = Todo(name = file.filename, data = file.read(), wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
-            db.session.add(new_task)
-            db.session.commit()
+            for file in files:
+                if file:
+                    data = file.read()
+                    file.stream.seek(0) 
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+                    wordlen = 0 
+                    i = 0
+                    with open(os.path.join(app.config['UPLOAD_FOLDER'], file.filename)) as f:
+                        for line in f:
+                            if (i == 0):
+                                a_list = nltk.tokenize.sent_tokenize(line)
+                                frst_sentence = a_list[0]
+                            i = i + 1 
+                            # findall re dan metode punctuation ada kekurangan dan kelebihan masing2
+                            res = len(re.findall(r'\w+', line)) 
+                            # res = sum([i.strip(string.punctuation).isalpha() for i in line.split()])
+                            wordlen = wordlen + res
+                    new_task = Todo(name = file.filename, data = data, wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
+                    db.session.add(new_task)
+                    db.session.commit()
            
             return redirect('/')
         except:
