@@ -3,6 +3,7 @@ from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 import string 
 import re 
 import nltk 
@@ -62,13 +63,20 @@ def index():
             lowercaseQuery = inputQuery.lower()
 
             # create stemmer
-            factory = StemmerFactory()
-            stemmer = factory.create_stemmer()
+            stemfactory = StemmerFactory()
+            stemmer = stemfactory.create_stemmer()
+
+            # Create stopwordsremover
+            stopfactory = StopWordRemoverFactory()
+            stopword = stopfactory.create_stop_word_remover()
 
             # Stemming Query with Sastrawi    
             stemmedQuery = stemmer.stem(lowercaseQuery)
+
+            # Remove Stopword from Query with Sastrawi
+            removedStopQuery = stopword.remove(stemmedQuery)
             
-            queryWordList = re.sub("[^\w]", " ",stemmedQuery).split()			
+            queryWordList = re.sub("[^\w]", " ",removedStopQuery).split()			
 
             for word in queryWordList:
                 if word not in universalSetOfUniqueWords:
@@ -77,9 +85,13 @@ def index():
                 matchPercentage = 0
                 fd = open("./static/"+doc.name , "r")
                 database1 = fd.read().lower()
+
+                # Stemming Database with Sastrawi
                 stemmedDatabase = stemmer.stem(database1)
 
-                #Stemming Database with Sastrawi
+                # Remove Stopword from Database with Sastrawi
+                removedStopDatabase = stopword.remove(stemmedDatabase)    
+
                 databaseWordList = re.sub("[^\w]", " ",stemmedDatabase).split()	#Replace punctuation by space and split
 
                 for word in databaseWordList:
