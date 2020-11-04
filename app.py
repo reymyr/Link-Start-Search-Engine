@@ -136,7 +136,14 @@ def index():
             for doc in file2 :
                 fd = open("./static/"+doc.name , "r")
                 database1 = fd.read().lower()
-                databaseWordList = re.sub("[^\w]", " ",database1).split()	#Replace punctuation by space and split
+                 # Stemming Database with Sastrawi
+                stemmedDatabase = stemmer.stem(database1)
+
+                # Remove Stopword from Database with Sastrawi
+                removedStopDatabase = stopword.remove(stemmedDatabase)    
+
+                databaseWordList = re.sub("[^\w]", " ",removedStopDatabase).split()	#Replace punctuation by space and split
+
                 i = 0
                 for word in universalSetOfUniqueWords:
                     for word2 in databaseWordList:
