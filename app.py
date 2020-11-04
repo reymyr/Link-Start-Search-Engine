@@ -91,7 +91,7 @@ def index():
                 # Remove Stopword from Database with Sastrawi
                 removedStopDatabase = stopword.remove(stemmedDatabase)    
 
-                databaseWordList = re.sub("[^\w]", " ",stemmedDatabase).split()	#Replace punctuation by space and split
+                databaseWordList = re.sub("[^\w]", " ",removedStopDatabase).split()	#Replace punctuation by space and split
 
                 for word in databaseWordList:
                     if word not in universalSetOfUniqueWords:
