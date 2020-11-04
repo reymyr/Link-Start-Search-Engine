@@ -28,135 +28,133 @@ class Documents(db.Model):
 @app.route('/', methods=['POST','GET'])
 def index():
     if request.method == 'POST':
-        if 'InputFile' in request.form:
-            files = request.files.getlist("filetxt")
-            try:
-                for file in files:
-                    if file:
-                        data = file.read()
-                        file.stream.seek(0) 
-                        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-                        wordlen = 0 
-                        i = 0
-                        with open(os.path.join(app.config['UPLOAD_FOLDER'], file.filename)) as f:
-                            for line in f:
-                                if (i == 0):
-                                    a_list = nltk.tokenize.sent_tokenize(line)
-                                    frst_sentence = a_list[0]
-                                i = i + 1 
-                                # findall re dan metode punctuation ada kekurangan dan kelebihan masing2
-                                res = len(re.findall(r'\w+', line)) 
-                                # res = sum([i.strip(string.punctuation).isalpha() for i in line.split()])
-                                wordlen = wordlen + res
-                        new_document = Documents(name = file.filename, data = data, wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
-                        db.session.add(new_document)
-                        db.session.commit()
+        file = Documents.query.order_by(Documents.sim).all()
+        universalSetOfUniqueWords = []
+        inputQuery = request.form['textquery']
+        lowercaseQuery = inputQuery.lower()
             
-                return redirect('/')
-            except:
-                return 'There was an issue adding your document'
-        else  :
-            file = Documents.query.order_by(Documents.sim).all()
-            universalSetOfUniqueWords = []
-            inputQuery = request.form['textquery']
-            lowercaseQuery = inputQuery.lower()
+        # create stemmer
+        stemfactory = StemmerFactory()
+        stemmer = stemfactory.create_stemmer()
 
-            # create stemmer
-            stemfactory = StemmerFactory()
-            stemmer = stemfactory.create_stemmer()
+        # Create stopwordsremover
+        stopfactory = StopWordRemoverFactory()
+        stopword = stopfactory.create_stop_word_remover()
 
-            # Create stopwordsremover
-            stopfactory = StopWordRemoverFactory()
-            stopword = stopfactory.create_stop_word_remover()
+        # Stemming Query with Sastrawi    
+        stemmedQuery = stemmer.stem(lowercaseQuery)
 
-            # Stemming Query with Sastrawi    
-            stemmedQuery = stemmer.stem(lowercaseQuery)
+        # Remove Stopword from Query with Sastrawi
+        removedStopQuery = stopword.remove(stemmedQuery)
+        
+        queryWordList = re.sub("[^\w]", " ", removedStopQuery).split()			
 
-            # Remove Stopword from Query with Sastrawi
-            removedStopQuery = stopword.remove(stemmedQuery)
-            
-            queryWordList = re.sub("[^\w]", " ",removedStopQuery).split()			
+        for word in queryWordList:
+            if word not in universalSetOfUniqueWords:
+                universalSetOfUniqueWords.append(word)
 
-            for word in queryWordList:
+        for doc in file :
+            matchPercentage = 0
+            fd = open("./static/"+doc.name , "r")
+            fileContents = fd.read().lower()
+
+            # Stemming File Contents with Sastrawi
+            stemmedFileContents = stemmer.stem(fileContents)
+
+            # Remove Stopword from File Contents with Sastrawi
+            removedStopFileContents = stopword.remove(stemmedFileContents)    
+
+            fileContentsWordList = re.sub("[^\w]", " ", removedStopFileContents).split()	#Replace punctuation by space and split
+
+            for word in fileContentsWordList:
                 if word not in universalSetOfUniqueWords:
                     universalSetOfUniqueWords.append(word)
-            for doc in file :
-                matchPercentage = 0
-                fd = open("./static/"+doc.name , "r")
-                database1 = fd.read().lower()
 
-                # Stemming Database with Sastrawi
-                stemmedDatabase = stemmer.stem(database1)
-
-                # Remove Stopword from Database with Sastrawi
-                removedStopDatabase = stopword.remove(stemmedDatabase)    
-
-                databaseWordList = re.sub("[^\w]", " ",removedStopDatabase).split()	#Replace punctuation by space and split
-
-                for word in databaseWordList:
-                    if word not in universalSetOfUniqueWords:
-                        universalSetOfUniqueWords.append(word)
-    
-                queryTF = []
-                databaseTF = []
-                for word in universalSetOfUniqueWords:
-                    queryTfCounter = queryWordList.count(word)
-                    queryTF.append(queryTfCounter)
-
-                    databaseTfCounter = databaseWordList.count(word)
-                    databaseTF.append(databaseTfCounter)
-
-                dotProduct = 0
-                queryVectorMagnitude = 0
-                databaseVectorMagnitude = 0
-                for i in range (len(queryTF)):
-                    dotProduct += queryTF[i]*databaseTF[i]
-                    queryVectorMagnitude += queryTF[i]**2
-                    databaseVectorMagnitude += databaseTF[i]**2
-                    
-                queryVectorMagnitude = math.sqrt(queryVectorMagnitude)                  
-                databaseVectorMagnitude = math.sqrt(databaseVectorMagnitude)
-                
-                if queryVectorMagnitude*databaseVectorMagnitude != 0:
-                    matchPercentage = (float)(dotProduct / (queryVectorMagnitude * databaseVectorMagnitude))*100
-                    doc.sim = matchPercentage
-                else:
-                    doc.sim = 0
-            file2 = Documents.query.order_by(Documents.sim.desc()).all()
-            dcount = len(file2) + 1
-            wcount = [[0 for j in range (dcount)] for i in range (len(universalSetOfUniqueWords)) ]
-            i = 0
-            j = 0
+            queryTF = []
+            fileContentsTF = []
             for word in universalSetOfUniqueWords:
-                for word2 in queryWordList:
+                queryTF.append(queryWordList.count(word))
+                fileContentsTF.append(fileContentsWordList.count(word))
+
+            dotProduct = 0
+            queryVectorMagnitude = 0
+            fileContentsVectorMagnitude = 0
+            for i in range (len(queryTF)):
+                dotProduct += queryTF[i]*fileContentsTF[i]
+                queryVectorMagnitude += queryTF[i]**2
+                fileContentsVectorMagnitude += fileContentsTF[i]**2
+                
+            queryVectorMagnitude = math.sqrt(queryVectorMagnitude)                  
+            fileContentsVectorMagnitude = math.sqrt(fileContentsVectorMagnitude)
+            
+            if queryVectorMagnitude*fileContentsVectorMagnitude != 0:
+                matchPercentage = (float)(dotProduct / (queryVectorMagnitude * fileContentsVectorMagnitude))*100
+                doc.sim = matchPercentage
+            else:
+                doc.sim = 0
+
+        orderedFiles = Documents.query.order_by(Documents.sim.desc()).all()
+        dcount = len(orderedFiles) + 1
+        wcount = [[0 for j in range (dcount)] for i in range (len(universalSetOfUniqueWords)) ]
+
+        for i in range(len(universalSetOfUniqueWords)):
+            wcount[i][0] = queryWordList.count(universalSetOfUniqueWords[i])
+
+        j = 1
+        for doc in orderedFiles :
+            fd = open("./static/" + doc.name, "r")
+            fileContents = fd.read().lower()
+
+            # Stemming File Contents with Sastrawi
+            stemmedFileContents = stemmer.stem(fileContents)
+
+            # Remove Stopword from File Contents with Sastrawi
+            removedStopFileContents = stopword.remove(stemmedFileContents)    
+
+            fileContentsWordList = re.sub("[^\w]", " ", removedStopFileContents).split()	#Replace punctuation by space and split
+
+            i = 0
+            for word in universalSetOfUniqueWords:
+                for word2 in fileContentsWordList:
                     if word == word2:
                         wcount[i][j] = wcount[i][j] + 1
                 i = i + 1
-            j = 1
-            for doc in file2 :
-                fd = open("./static/"+doc.name , "r")
-                database1 = fd.read().lower()
-                 # Stemming Database with Sastrawi
-                stemmedDatabase = stemmer.stem(database1)
-
-                # Remove Stopword from Database with Sastrawi
-                removedStopDatabase = stopword.remove(stemmedDatabase)    
-
-                databaseWordList = re.sub("[^\w]", " ",removedStopDatabase).split()	#Replace punctuation by space and split
-
-                i = 0
-                for word in universalSetOfUniqueWords:
-                    for word2 in databaseWordList:
-                        if word == word2:
-                            wcount[i][j] = wcount[i][j] + 1
-                    i = i + 1
-                j = j + 1
-            return render_template('index.html', documents=file2, Ikkeh="success", arr=universalSetOfUniqueWords, arr2 = wcount, dcount = dcount, i = 0)
+            j = j + 1
+        return render_template('index.html', documents=orderedFiles, Ikkeh="success", arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
 
             # return request.form['textQuery']
     else:
         documents = Documents.query.order_by(Documents.date_created).all()
         return render_template('index.html', documents=documents)
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    files = request.files.getlist("filetxt")
+    try:
+        for file in files:
+            if file:
+                data = file.read()
+                file.stream.seek(0) 
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+                wordlen = 0 
+                i = 0
+                with open(os.path.join(app.config['UPLOAD_FOLDER'], file.filename)) as f:
+                    for line in f:
+                        if (i == 0):
+                            a_list = nltk.tokenize.sent_tokenize(line)
+                            frst_sentence = a_list[0]
+                        i = i + 1 
+                        # findall re dan metode punctuation ada kekurangan dan kelebihan masing2
+                        res = len(re.findall(r'\w+', line)) 
+                        # res = sum([i.strip(string.punctuation).isalpha() for i in line.split()])
+                        wordlen = wordlen + res
+                new_document = Documents(name = file.filename, data = data, wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
+                db.session.add(new_document)
+                db.session.commit()
+    
+        return redirect('/')
+    except:
+        return 'There was an issue adding your document'
 
 @app.route('/delete/<int:id>')
 def delete(id):
