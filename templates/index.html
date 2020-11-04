@@ -15,7 +15,6 @@
         <form action="/" method="POST">
             <label for="textQuery2"></label>
             <input type="text" name="textquery" id="textQuery2" value="{{ input }}">
-            <input type="hidden" name="Query">
             <input type="submit" value="Add Query">
         </form>
     </div>
@@ -48,7 +47,6 @@
     <div class="form">
         <form action="/upload" method="POST" enctype="multipart/form-data">
             <input type="file" name="filetxt" id="filetxt2" multiple>
-            <input type="hidden" name="InputFile">
             <input type="submit" value="Add File">
         </form>
     </div>
