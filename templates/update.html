@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Task Master</title>
+<title>{{ name }}</title>
 {% endblock %}
 
 {% block body %}
 <div class="content">
     <h1 style="text-align: center">Isi File</h1>
-    <p>{{task| safe}}</p>
+    <p>{{document| safe}}</p>
 </div>
 {% endblock %}
