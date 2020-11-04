@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 import string 
 import re 
 import nltk 
@@ -60,7 +61,14 @@ def index():
             inputQuery = request.form['textquery']
             lowercaseQuery = inputQuery.lower()
 
-            queryWordList = re.sub("[^\w]", " ",lowercaseQuery).split()			
+            # create stemmer
+            factory = StemmerFactory()
+            stemmer = factory.create_stemmer()
+
+            # Stemming Query with Sastrawi    
+            stemmedQuery = stemmer.stem(lowercaseQuery)
+            
+            queryWordList = re.sub("[^\w]", " ",stemmedQuery).split()			
 
             for word in queryWordList:
                 if word not in universalSetOfUniqueWords:
@@ -69,8 +77,10 @@ def index():
                 matchPercentage = 0
                 fd = open("./static/"+doc.name , "r")
                 database1 = fd.read().lower()
+                stemmedDatabase = stemmer.stem(database1)
 
-                databaseWordList = re.sub("[^\w]", " ",database1).split()	#Replace punctuation by space and split
+                #Stemming Database with Sastrawi
+                databaseWordList = re.sub("[^\w]", " ",stemmedDatabase).split()	#Replace punctuation by space and split
 
                 for word in databaseWordList:
                     if word not in universalSetOfUniqueWords:
