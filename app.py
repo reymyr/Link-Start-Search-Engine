@@ -15,6 +15,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///documents.db'
 db = SQLAlchemy(app)
 
+# Create database model
 class Documents(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
@@ -24,7 +25,7 @@ class Documents(db.Model):
     first_sentence = db.Column(db.String(200), nullable=True)
     sim = db.Column(db.Float, nullable=True)
 
-
+# Index route
 @app.route('/', methods=['POST','GET'])
 def index():
     if request.method == 'POST':
@@ -49,6 +50,7 @@ def index():
         
         queryWordList = re.sub("[^\w]", " ", removedStopQuery).split()			
 
+        # Fill set of unique words from query
         for word in queryWordList:
             if word not in universalSetOfUniqueWords:
                 universalSetOfUniqueWords.append(word)
@@ -66,16 +68,19 @@ def index():
 
             fileContentsWordList = re.sub("[^\w]", " ", removedStopFileContents).split()	#Replace punctuation by space and split
 
+            # Fill set of unique words from file
             for word in fileContentsWordList:
                 if word not in universalSetOfUniqueWords:
                     universalSetOfUniqueWords.append(word)
 
+            # Count word frequency in file and query
             queryTF = []
             fileContentsTF = []
             for word in universalSetOfUniqueWords:
                 queryTF.append(queryWordList.count(word))
                 fileContentsTF.append(fileContentsWordList.count(word))
 
+            # Find dot product and magnitude of the vectors
             dotProduct = 0
             queryVectorMagnitude = 0
             fileContentsVectorMagnitude = 0
@@ -83,10 +88,10 @@ def index():
                 dotProduct += queryTF[i]*fileContentsTF[i]
                 queryVectorMagnitude += queryTF[i]**2
                 fileContentsVectorMagnitude += fileContentsTF[i]**2
-                
             queryVectorMagnitude = math.sqrt(queryVectorMagnitude)                  
             fileContentsVectorMagnitude = math.sqrt(fileContentsVectorMagnitude)
             
+            # Calculate similarity
             if queryVectorMagnitude*fileContentsVectorMagnitude != 0:
                 matchPercentage = (float)(dotProduct / (queryVectorMagnitude * fileContentsVectorMagnitude))*100
                 doc.sim = matchPercentage
@@ -97,6 +102,7 @@ def index():
         dcount = len(orderedFiles) + 1
         wcount = [[0 for j in range (dcount)] for i in range (len(universalSetOfUniqueWords)) ]
 
+        # Fill term table
         for i in range(len(universalSetOfUniqueWords)):
             wcount[i][0] = queryWordList.count(universalSetOfUniqueWords[i])
 
@@ -120,13 +126,12 @@ def index():
                         wcount[i][j] = wcount[i][j] + 1
                 i = i + 1
             j = j + 1
-        return render_template('index.html', documents=orderedFiles, Ikkeh="success", arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
-
-            # return request.form['textQuery']
+        return render_template('index.html', documents=orderedFiles, arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
     else:
         documents = Documents.query.order_by(Documents.date_created).all()
         return render_template('index.html', documents=documents)
 
+# Upload route
 @app.route('/upload', methods=['POST'])
 def upload():
     files = request.files.getlist("filetxt")
@@ -135,6 +140,7 @@ def upload():
             if file:
                 data = file.read()
                 file.stream.seek(0) 
+                # Save file to local
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
                 wordlen = 0 
                 i = 0
@@ -148,6 +154,7 @@ def upload():
                         res = len(re.findall(r'\w+', line)) 
                         # res = sum([i.strip(string.punctuation).isalpha() for i in line.split()])
                         wordlen = wordlen + res
+                # Add file to database
                 new_document = Documents(name = file.filename, data = data, wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
                 db.session.add(new_document)
                 db.session.commit()
@@ -156,20 +163,22 @@ def upload():
     except:
         return 'There was an issue adding your document'
 
+# Delete route
 @app.route('/delete/<int:id>')
 def delete(id):
     document_to_delete = Documents.query.get_or_404(id)
 
-    try:
+    try: # Delete file from local and database
         os.unlink(os.path.join(app.config['UPLOAD_FOLDER'], document_to_delete.name))
         db.session.delete(document_to_delete)
         db.session.commit()
         return redirect('/')
-    except:
+    except: # Delete file database
         db.session.delete(document_to_delete)
         db.session.commit()
         return redirect('/')
 
+# View route
 @app.route('/view/<int:id>', methods=['GET', 'POST'])
 def view(id):
     document = Documents.query.get_or_404(id)
