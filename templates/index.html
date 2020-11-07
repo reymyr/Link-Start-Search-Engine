@@ -5,78 +5,143 @@
 {% endblock %}
 
 {% block body %}
-<div class="content">
-    <h1 style="text-align: center">Tubes Algeo</h1>
-    {% if documents|length < 1 %}
-    <h4 style="text-align: center">There are no file.</h4>
-    {% else %}
-    <div class="form">
-        <form action="/" method="POST">
-            <label for="textQuery2"></label>
-            <input type="text" name="textquery" id="textQuery2" value="{{ input }}">
-            <input type="submit" value="Add Query">
-        </form>
-    </div>
-    <table>
-        <tr>
-            <th>Filename</th>
-            <th>Added</th>
-            <th>First line</th>
-            <th>Word length</th>
-            <th>Similarity</th>
-            <th>Actions</th>
-        </tr>
-        {% for document in documents %}
-        <tr>
-            {% if document.url %}
-            <td>
-                <a href="{{ document.url }}">{{ document.name }}</a>
-            </td>
-            {% else %}
-            <td>
-                <a href="/view/{{ document.id }}">{{ document.name }}</a>
-            </td>
-            {% endif %}
-            <td>{{ document.date_created.date() }}</td>
-            <td>{{ document.first_sentence }}</td>
-            <td>{{ document.wordcnt }}</td>
-            <td>{{ document.sim | round(2) }}%</td>
-            <td>
-                <a href="/delete/{{ document.id }}">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
 
-    <div class="form">
-        <form action="/upload" method="POST" enctype="multipart/form-data">
-            <input type="file" name="filetxt" id="filetxt2" multiple>
-            <input type="submit" value="Add File">
-        </form>
+<div class="container justify-content-center">
+    <div class="row col-6 mt-3">
+        {% if warning %}
+        <div class="alert alert-danger" role="alert">
+            <i class="fa fa-times"> {{ warning }}</i>
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+            <i class="fa fa-check"> {{ success }}</i>
+        </div>
+        {% endif %}
     </div>
-    <div class="form">
-        <form action="/get-from-url" method="POST">
-            <input type="text" name="url" id="url-form" placeholder="Enter URL...">
-            <input type="submit" value="Submit">
-        </form>
+    <div class="row col-12 justify-content-center">
+        <h1 style="text-align: center">Tubes Algeo</h1>
+        <p></p>
+        {% if documents|length < 1 %}
+        <h4 style="text-align: center">There are no file.</h4>
+        {% else %}
     </div>
+    <div class="row justify-content-center my-4">
+        <div class="col-4">
+            <form action="/" class="form-inline" method="POST">
+                <div class="form-group mr-2">
+                    <input class="form-control" type="text" name="textquery" id="textQuery2" value="{{ input }}">
+                </div>
+                <button class="btn btn-info" type="submit" value="Add Query">
+                    <i class="fa fa-paper-plane"> Send Query</i>
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="row my-4 justify-content-center">
+        <div class="col-10">
+            <div class="card">
+                <h3 class="card-header text-center font-weight-bold">Data Table</h3>
+                <div class="card-body">
+                    <table class="table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Filename</th>
+                                <th>Added</th>
+                                <th>First line</th>
+                                <th>Word length</th>
+                                <th>Similarity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for document in documents %}
+                            <tr class="bg-white">
+                                {% if document.url %}
+                                <td>
+                                    <a href="{{ document.url }}" target="_blank">{{ document.name }}</a>
+                                </td>
+                                {% else %}
+                                <td>
+                                    <a href="/view/{{ document.id }}" target="_blank">{{ document.name }}</a>
+                                </td>
+                                {% endif %}
+                                <td>{{ document.date_created.date() }}</td>
+                                <td>{{ document.first_sentence }}</td>
+                                <td>{{ document.wordcnt }}</td>
+                                <td>{{ document.sim | round(2) }}%</td>
+                                <td>
+                                    <a href="/delete/{{ document.id }}"><button class="btn btn-danger"><i
+                                                class="fa fa-trash"></i></button></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="row justify-content-center my-4">
+        <div class="col-9">
+            <div class="card">
+                <h3 class="card-header text-center font-weight-bold">Add Your Data Here</h3>
+                <div class="card-body">
+                    <div class="form-inline">
+                        <form action="/upload" class="form-inline mr-4" method="POST" enctype="multipart/form-data">
+                            <div class="form-group mr-2">
+                                <input type="file" name="filetxt" class="form-control-file" id="filetxt2" multiple>
+                            </div>
+                            <button class="btn btn-success" type="submit" value="Add File">
+                                <i class="fa fa-plus"> Add File</i>
+                            </button>
+                        </form>
+                        <form action="/get-from-url" class="form-inline" method="POST">
+                            <div class="form-group mr-2">
+                                <input type="url" name="url" class="form-control" id="url-form"
+                                    placeholder="Enter URL...">
+                            </div>
+                            <button class="btn btn-warning text-white" type="submit" value="Add Link">
+                                <i class="fa fa-link"> Add Link</i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if arr2 %}
+    <div class="row my-4 justify-content-center">
+        <div class="col-12">
+            <div class="card">
+                <h3 class="card-header text-center font-weight-bold">Terms Table</h3>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Terms</th>
+                                <th>Query</th>
+                                {% for document in documents %}
+                                <th>{{ document.name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range (arr| length) %}
+                            <tr class="bg-light">
+                                <td class="bg-dark text-white">{{ arr[i] }}</td>
+                                {% for j in range (dcount) %}
+                                <td>{{ arr2[i][j] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-<table>
-    <tr>
-        <th>Terms</th>
-        <th>Query</th>
-        {% for document in documents %}
-        <th>{{ document.name }}</th>
-        {% endfor %}
-    </tr>
-    {% for i in range (arr| length) %}
-    <tr>
-        <td>{{ arr[i] }}</td>
-        {% for j in range (dcount) %}
-        <td>{{ arr2[i][j] }}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
 {% endblock %}

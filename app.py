@@ -136,13 +136,13 @@ def index():
                         wcount[i][j] = wcount[i][j] + 1
                 i = i + 1
             j = j + 1
-        return render_template('index.html', documents=orderedFiles, arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
+        return render_template('index.html', success='Query success', documents=orderedFiles, arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
     else:
         documents = Documents.query.order_by(Documents.date_created).all()
         return render_template('index.html', documents=documents)
 
 # Upload route
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['POST','GET'])
 def upload():
     files = request.files.getlist("filetxt")
     try:
@@ -168,19 +168,23 @@ def upload():
                 new_document = Documents(name = file.filename, url = '', wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
                 db.session.add(new_document)
                 db.session.commit()
-    
-        return redirect('/')
+
+        documents = Documents.query.order_by(Documents.date_created).all()
+        return render_template('index.html', documents=documents , success ='Document add success')
+
     except:
-        return 'There was an issue adding your document'
+        documents = Documents.query.order_by(Documents.date_created).all()
+        return render_template('index.html', documents=documents , warning ='There was an issue adding your document')
 
 # Get from webpage
-@app.route('/get-from-url', methods=['POST'])
+@app.route('/get-from-url', methods=['POST','GET'])
 def getUrl():
     try:
         url = request.form['url']
         r = requests.get(url)
-    except:
-        return "Unable to get URL. Please make sure it's valid and try again."
+    except: 
+        documents = Documents.query.order_by(Documents.date_created).all()
+        return render_template('index.html', documents=documents , warning ="Unable to get URL. Please make sure it's valid and try again.")
 
     if r:
         # Get web content with BeautifulSoup
@@ -190,12 +194,14 @@ def getUrl():
         rawText = soup.get_text()
         removedSpaces = re.sub(' +', ' ', rawText).strip()
         removedBreaks = re.sub(r'\n\s*\n', '\n\n', removedSpaces)
-
-        # Save web text to local file
-        f = open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'w')
-        f.write(removedBreaks)
-        f.close()
-
+        try:
+            # Save web text to local file
+            f = open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'w')
+            f.write(removedBreaks)
+            f.close()
+        except :
+            documents = Documents.query.order_by(Documents.date_created).all()
+            return render_template('index.html', documents=documents , warning ="We can't process this link right now, please try another link")
         wordlen = 0 
         i = 0
         with open(os.path.join(app.config['UPLOAD_FOLDER'], filename)) as f:
@@ -214,7 +220,8 @@ def getUrl():
         db.session.add(new_document)
         db.session.commit()
 
-    return redirect('/')
+    documents = Documents.query.order_by(Documents.date_created).all()
+    return render_template('index.html', documents=documents , success ='Link add success')
     
 # Delete route
 @app.route('/delete/<int:id>')
@@ -229,11 +236,12 @@ def delete(id):
         os.unlink(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         db.session.delete(document_to_delete)
         db.session.commit()
-        return redirect('/')
+        
     except: # Delete file database
         db.session.delete(document_to_delete)
         db.session.commit()
-        return redirect('/')
+    documents = Documents.query.order_by(Documents.date_created).all()
+    return render_template('index.html', documents=documents , success ='Delete success')    
 
 # View route
 @app.route('/view/<int:id>', methods=['GET', 'POST'])
