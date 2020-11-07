@@ -28,15 +28,21 @@
         </tr>
         {% for document in documents %}
         <tr>
+            {% if document.url %}
             <td>
-                <a href="/view/{{document.id}}">{{ document.name }}</a>
+                <a href="{{ document.url }}">{{ document.name }}</a>
             </td>
+            {% else %}
+            <td>
+                <a href="/view/{{ document.id }}">{{ document.name }}</a>
+            </td>
+            {% endif %}
             <td>{{ document.date_created.date() }}</td>
             <td>{{ document.first_sentence }}</td>
             <td>{{ document.wordcnt }}</td>
             <td>{{ document.sim | round(2) }}%</td>
             <td>
-                <a href="/delete/{{document.id}}">Delete</a>
+                <a href="/delete/{{ document.id }}">Delete</a>
             </td>
         </tr>
         {% endfor %}
@@ -47,6 +53,12 @@
         <form action="/upload" method="POST" enctype="multipart/form-data">
             <input type="file" name="filetxt" id="filetxt2" multiple>
             <input type="submit" value="Add File">
+        </form>
+    </div>
+    <div class="form">
+        <form action="/get-from-url" method="POST">
+            <input type="text" name="url" id="url-form" placeholder="Enter URL...">
+            <input type="submit" value="Submit">
         </form>
     </div>
 </div>

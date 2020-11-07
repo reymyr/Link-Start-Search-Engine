@@ -1,13 +1,15 @@
 import os
+import string 
+import re 
+import nltk 
+import math
+import requests
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
-import string 
-import re 
-import nltk 
-import math
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 UPLOAD_FOLDER = './static'
@@ -20,7 +22,7 @@ class Documents(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     name = db.Column(db.String(200), nullable=True)
-    data = db.Column(db.LargeBinary)
+    url = db.Column(db.String(2000), nullable=True)
     wordcnt = db.Column(db.Integer, nullable=True)
     first_sentence = db.Column(db.String(200), nullable=True)
     sim = db.Column(db.Float, nullable=True)
@@ -57,7 +59,11 @@ def index():
 
         for doc in file :
             matchPercentage = 0
-            fd = open("./static/"+doc.name , "r")
+            if doc.url:
+                filename = re.sub("[^\w]", "", doc.name) + '.txt'
+            else:
+                filename = doc.name
+            fd = open("./static/"+filename, "r")
             fileContents = fd.read().lower()
 
             # Stemming File Contents with Sastrawi
@@ -108,7 +114,11 @@ def index():
 
         j = 1
         for doc in orderedFiles :
-            fd = open("./static/" + doc.name, "r")
+            if doc.url:
+                filename = re.sub("[^\w]", "", doc.name) + '.txt'
+            else:
+                filename = doc.name
+            fd = open("./static/" + filename, "r")
             fileContents = fd.read().lower()
 
             # Stemming File Contents with Sastrawi
@@ -138,7 +148,6 @@ def upload():
     try:
         for file in files:
             if file:
-                data = file.read()
                 file.stream.seek(0) 
                 # Save file to local
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
@@ -154,8 +163,9 @@ def upload():
                         res = len(re.findall(r'\w+', line)) 
                         # res = sum([i.strip(string.punctuation).isalpha() for i in line.split()])
                         wordlen = wordlen + res
+
                 # Add file to database
-                new_document = Documents(name = file.filename, data = data, wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
+                new_document = Documents(name = file.filename, url = '', wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
                 db.session.add(new_document)
                 db.session.commit()
     
@@ -163,13 +173,60 @@ def upload():
     except:
         return 'There was an issue adding your document'
 
+# Get from webpage
+@app.route('/get-from-url', methods=['POST'])
+def getUrl():
+    try:
+        url = request.form['url']
+        r = requests.get(url)
+    except:
+        return "Unable to get URL. Please make sure it's valid and try again."
+
+    if r:
+        # Get web content with BeautifulSoup
+        soup = BeautifulSoup(r.text, 'html.parser')
+        title = soup.find('title').string.strip().replace('\n','')
+        filename = re.sub("[^\w]", "", title) + '.txt'
+        rawText = soup.get_text()
+        removedSpaces = re.sub(' +', ' ', rawText).strip()
+        removedBreaks = re.sub(r'\n\s*\n', '\n\n', removedSpaces)
+
+        # Save web text to local file
+        f = open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'w')
+        f.write(removedBreaks)
+        f.close()
+
+        wordlen = 0 
+        i = 0
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename)) as f:
+            for line in f:
+                if (i == 0):
+                    a_list = nltk.tokenize.sent_tokenize(line)
+                    frst_sentence = a_list[0]
+                i = i + 1 
+                # findall re dan metode punctuation ada kekurangan dan kelebihan masing2
+                res = len(re.findall(r'\w+', line)) 
+                # res = sum([i.strip(string.punctuation).isalpha() for i in line.split()])
+                wordlen = wordlen + res
+
+        # Add to database
+        new_document = Documents(name = title, url = url, wordcnt = wordlen, first_sentence = frst_sentence, sim = 0)
+        db.session.add(new_document)
+        db.session.commit()
+
+    return redirect('/')
+    
 # Delete route
 @app.route('/delete/<int:id>')
 def delete(id):
     document_to_delete = Documents.query.get_or_404(id)
 
     try: # Delete file from local and database
-        os.unlink(os.path.join(app.config['UPLOAD_FOLDER'], document_to_delete.name))
+        if document_to_delete.url:
+            filename = re.sub("[^\w]", "", document_to_delete.name) + '.txt'
+        else:
+            filename = document_to_delete.name
+        os.unlink(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         db.session.delete(document_to_delete)
         db.session.commit()
         return redirect('/')
