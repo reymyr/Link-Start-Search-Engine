@@ -243,7 +243,7 @@ def view(id):
         file_content = f.read().splitlines(True)
         file_content = ''.join(file_content)
         file_content = file_content.replace('\n', '<br>')
-    return render_template('update.html', name=document.name, document=file_content)
+    return render_template('viewfile.html', name=document.name, document=file_content)
 
 
 if __name__ == "__main__":
