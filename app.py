@@ -148,6 +148,11 @@ def upload():
     try:
         for file in files:
             if file:
+                # Check file extension
+                if not '.' in file.filename or file.filename.rsplit('.', 1)[1].upper() != 'TXT':
+                    documents = Documents.query.order_by(Documents.date_created).all()
+                    return render_template('index.html', documents=documents , warning ="File format error, please input .txt file")
+                    
                 file.stream.seek(0) 
                 # Save file to local
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
