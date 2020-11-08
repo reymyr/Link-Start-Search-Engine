@@ -253,6 +253,13 @@ def view(id):
         file_content = file_content.replace('\n', '<br>')
     return render_template('viewfile.html', name=document.name, document=file_content)
 
+@app.route('/aboutus')
+def about():
+    return render_template("aboutus.html")
+
+@app.route('/howtouse')
+def howtouse():
+    return render_template("howtouse.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
