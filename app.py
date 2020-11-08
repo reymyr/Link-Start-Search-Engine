@@ -244,7 +244,7 @@ def delete(id):
     return render_template('index.html', documents=documents , success ='Delete success')    
 
 # View route
-@app.route('/view/<int:id>', methods=['GET', 'POST'])
+@app.route('/view/<int:id>', methods=['GET'])
 def view(id):
     document = Documents.query.get_or_404(id)
     with open(os.path.join(app.config['UPLOAD_FOLDER'], document.name)) as f:
