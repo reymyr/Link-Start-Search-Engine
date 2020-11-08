@@ -148,6 +148,11 @@ def upload():
     try:
         for file in files:
             if file:
+                # Check file extension
+                if not '.' in file.filename or file.filename.rsplit('.', 1)[1].upper() != 'TXT':
+                    documents = Documents.query.order_by(Documents.date_created).all()
+                    return render_template('index.html', documents=documents , warning ="File format error, please input .txt file")
+                    
                 file.stream.seek(0) 
                 # Save file to local
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
@@ -253,6 +258,13 @@ def view(id):
         file_content = file_content.replace('\n', '<br>')
     return render_template('viewfile.html', name=document.name, document=file_content)
 
+@app.route('/aboutus')
+def about():
+    return render_template("aboutus.html")
+
+@app.route('/howtouse')
+def howtouse():
+    return render_template("howtouse.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,10 +1,48 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Tubes 2 Algeo</title>
+<title>Home - Link Start!</title>
 {% endblock %}
 
 {% block body %}
+<header>
+    <div class="p-1" id="topHeader">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <a class="p-1" href="http://www.instagram.com/gdeananthap"><i class="fa fa-instagram"></i> gdeananthap</a>
+                    <a class="p-1" href="mailto:13519026@std.stei.itb.ac.id"><i class="fa fa-envelope"></i> 13519026@std.stei.itb.ac.id</a>
+                    <a class="p-1" href="http://www.instagram.com/andhikarei"><i class="fa fa-instagram"></i> andhikarei</a>
+                    <a class="p-1" href="mailto:13519043@std.stei.itb.ac.id"><i class="fa fa-envelope"></i> 13519043@std.stei.itb.ac.id</a>
+                    <a class="p-1" href="http://www.instagram.com/rey.myr"><i class="fa fa-instagram"></i> rey.myr</a>
+                    <a class="p-1" href="mailto:13519167@std.stei.itb.ac.id"><i class="fa fa-envelope"></i> 13519167@std.stei.itb.ac.id</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="bottomHeader">
+        <div class="container-fluid">
+            <nav class="navbar navbar-dark navbar-expand-md" style="background-color: #004d80;">
+                <a href="" class="navbar-brand"><i class="fa fa-2x fa-search-plus"></i></a>
+                <h1>Link Start!</h1>
+                <button data-toggle="collapse" data-target="#navbar-toggler" type="button" class="navbar-toggler"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbar-toggler">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                            <a href="/" class="nav-link">Home</a> 
+                        </li>
+                        <li class="nav-item">
+                            <a href="/howtouse" class="nav-link">How To Use</a> 
+                        </li>
+                        <li class="nav-item">
+                            <a href="/aboutus" class="nav-link">About Us</a> 
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
 
 <div class="container justify-content-center">
     <div class="row col-6 mt-3">
@@ -144,4 +182,13 @@
     </div>
     {% endif %}
 </div>
+<footer class="full-footer">
+    <div class="container-fluid bottom-footer pt-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <p>Copyright © 2020 - All rights reserved</p>
+            </div>
+        </div>
+    </div>
+</footer>
 {% endblock %}
