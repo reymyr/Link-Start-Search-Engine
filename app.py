@@ -136,7 +136,7 @@ def index():
                         wcount[i][j] = wcount[i][j] + 1
                 i = i + 1
             j = j + 1
-        return render_template('index.html', success='Query success', documents=orderedFiles, arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
+        return render_template('index.html', queryCnt=queryWordList, success='Query success', documents=orderedFiles, arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
     else:
         documents = Documents.query.order_by(Documents.date_created).all()
         return render_template('index.html', documents=documents)
