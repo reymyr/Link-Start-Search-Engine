@@ -70,28 +70,89 @@
                 <hr />
             </div>
             <div class="col-md-9">
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore 
-                    magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo 
-                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                <p style="text-align: justify;">
+                    Link Start! adalah sebuah search engine seperti google, bing dan yahoo! search. Search engine ini merupakan search engine
+                    sederhana dengan model ruang vector dan memanfaatkan cosine similarity. Konsep yang digunakan untuk pembuatan search engine
+                    ini yaitu sistem temu balik informasi yang telah diajarkan di dalam kuliah pada materi vector di ruang Euclidean. Sisten 
+                    temu-balik informasi (information retrieval) merupakan proses menemukan kembali (retrieval) informasi yang relevan terhadap 
+                    kebutuhan pengguna dari suatu kumpulan informasi secara otomatis. Biasanya, sistem temu balik informasi ini digunakan untuk 
+                    mencari informasi pada informasi yang tidak terstruktur, seperti laman web atau dokumen.
                 </p>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore 
-                    magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo 
-                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore 
-                    magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo 
-                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                <p style="text-align: justify;">
+                    Ide utama dari sistem temu balik informasi adalah mengubah search query menjadi ruang vektor Setiap dokumen maupun query 
+                    dinyatakan sebagai vektor w = (w1, w2,..., wn) di dalam Rn, dimana nilai wi dapat menyatakan jumlah kemunculan kata tersebut
+                    dalam dokumen (term frequency). Penentuan dokumen mana yang relevan dengan search query dipandang sebagai pengukuran kesamaan 
+                    (similarity measure) antara query dengan dokumen. Semakin sama suatu vektor dokumen dengan vektor query, semakin relevan 
+                    dokumen tersebut dengan query. Kesamaan tersebut dapat diukur dengan cosine similarity
                 </p>
             </div>
         </div>
     </div>
 </section>
+
+
+<div class="container justify-content-center">
+    <div class="row">
+        <div class="heading-title text-center">
+            <h2 class="text-uppercase" >Meet Our Team </h2>
+            <p class="p-top-30 half-txt">Hanya Sekumpulan Orang-Orang Aneh yang Berusaha Menyelesaikan Tugas Besar Algeo ditengah Tubes-Tubes dan Kuis-Kuis Lainnya.</p>
+        </div>
+
+        <div class="col-md-4 col-sm-4">
+            <div class="team-member">
+                <div class="team-img">
+                    <img src="{{url_for('static', filename='foto/nantha.jpg')}}" alt="team member" class="img-responsive" />
+                </div>
+                <div class="team-hover">
+                    <div class="desk">
+                        <h4>Halo!</h4>
+                        <p>Seorang Pemuda berani yang belum berjodoh selama 19 tahun</p>
+                    </div>
+                </div>
+            </div>
+            <div class="team-title">
+                <h5>Gde Anantha</h5>
+                <span>13519026</span>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4">
+            <div class="team-member">
+                <div class="team-img">
+                    <img src="{{url_for('static', filename='foto/rei.jpg')}}" alt="team member" class="img-responsive" />
+                </div>
+                <div class="team-hover">
+                    <div class="desk">
+                        <h4>Halo!</h4>
+                        <p>Seorang wibu yang hidupnya dipenuhi oleh waifu-waifu dari berbagai genre</p>
+                    </div>
+                </div>
+            </div>
+            <div class="team-title">
+                <h5>Reihan Andhika</h5>
+                <span>13519043</span>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4">
+            <div class="team-member">
+                <div class="team-img">
+                    <img src="{{url_for('static', filename='foto/emyr.jpg')}}" alt="team member" class="img-responsive" />
+                </div>
+                <div class="team-hover">
+                    <div class="desk">
+                        <h4>Halo!</h4>
+                        <p>Seorang anak yang kena mental dan tidak pernah merasakan nilai jelek selama kuliah</p>
+                    </div>
+                </div>
+            </div>
+            <div class="team-title">
+                <h5>Reyhan Emyr</h5>
+                <span>13519167</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
 
 <footer class="full-footer">
     <div class="container-fluid bottom-footer pt-3">
