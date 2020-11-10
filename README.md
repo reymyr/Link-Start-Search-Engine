@@ -25,6 +25,7 @@ cd Algeo02-19026
 ## Manual Setup
 After cloning the repository
 ```bash 
+cd src
 py -m venv env
 env\Scripts\activate
 pip install -r requirements.txt
