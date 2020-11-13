@@ -32,7 +32,7 @@ class Documents(db.Model):
 def index():
     if request.method == 'POST':
         file = Documents.query.order_by(Documents.sim).all()
-        universalSetOfUniqueWords = []
+        WordInAllDocument = []
         inputQuery = request.form['textquery']
         lowercaseQuery = inputQuery.lower()
             
@@ -54,11 +54,11 @@ def index():
 
         # Fill set of unique words from query
         for word in queryWordList:
-            if word not in universalSetOfUniqueWords:
-                universalSetOfUniqueWords.append(word)
+            if word not in WordInAllDocument:
+                WordInAllDocument.append(word)
 
         for doc in file :
-            matchPercentage = 0
+            Similarity = 0
             if doc.url:
                 filename = re.sub("[^\w]", "", doc.name) + '.txt'
             else:
@@ -76,41 +76,41 @@ def index():
 
             # Fill set of unique words from file
             for word in fileContentsWordList:
-                if word not in universalSetOfUniqueWords:
-                    universalSetOfUniqueWords.append(word)
+                if word not in WordInAllDocument:
+                    WordInAllDocument.append(word)
 
             # Count word frequency in file and query
             queryTF = []
             fileContentsTF = []
-            for word in universalSetOfUniqueWords:
+            for word in WordInAllDocument:
                 queryTF.append(queryWordList.count(word))
                 fileContentsTF.append(fileContentsWordList.count(word))
 
             # Find dot product and magnitude of the vectors
             dotProduct = 0
-            queryVectorMagnitude = 0
-            fileContentsVectorMagnitude = 0
+            queryVectorLength = 0
+            fileContentsVectorLength = 0
             for i in range (len(queryTF)):
                 dotProduct += queryTF[i]*fileContentsTF[i]
-                queryVectorMagnitude += queryTF[i]**2
-                fileContentsVectorMagnitude += fileContentsTF[i]**2
-            queryVectorMagnitude = math.sqrt(queryVectorMagnitude)                  
-            fileContentsVectorMagnitude = math.sqrt(fileContentsVectorMagnitude)
+                queryVectorLength += queryTF[i]**2
+                fileContentsVectorLength += fileContentsTF[i]**2
+            queryVectorLength = math.sqrt(queryVectorLength)                  
+            fileContentsVectorLength = math.sqrt(fileContentsVectorLength)
             
             # Calculate similarity
-            if queryVectorMagnitude*fileContentsVectorMagnitude != 0:
-                matchPercentage = (float)(dotProduct / (queryVectorMagnitude * fileContentsVectorMagnitude))*100
-                doc.sim = matchPercentage
+            if queryVectorLength*fileContentsVectorLength != 0:
+                Similarity = (float)(dotProduct / (queryVectorLength * fileContentsVectorLength))*100
+                doc.sim = Similarity
             else:
                 doc.sim = 0
 
         orderedFiles = Documents.query.order_by(Documents.sim.desc()).all()
         dcount = len(orderedFiles) + 1
-        wcount = [[0 for j in range (dcount)] for i in range (len(universalSetOfUniqueWords)) ]
+        wcount = [[0 for j in range (dcount)] for i in range (len(WordInAllDocument)) ]
 
         # Fill term table
-        for i in range(len(universalSetOfUniqueWords)):
-            wcount[i][0] = queryWordList.count(universalSetOfUniqueWords[i])
+        for i in range(len(WordInAllDocument)):
+            wcount[i][0] = queryWordList.count(WordInAllDocument[i])
 
         j = 1
         for doc in orderedFiles :
@@ -130,13 +130,13 @@ def index():
             fileContentsWordList = re.sub("[^\w]", " ", removedStopFileContents).split()	#Replace punctuation by space and split
 
             i = 0
-            for word in universalSetOfUniqueWords:
+            for word in WordInAllDocument:
                 for word2 in fileContentsWordList:
                     if word == word2:
                         wcount[i][j] = wcount[i][j] + 1
                 i = i + 1
             j = j + 1
-        return render_template('index.html', queryCnt=queryWordList, success='Query success', documents=orderedFiles, arr=universalSetOfUniqueWords, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
+        return render_template('index.html', queryCnt=queryWordList, success='Query success', documents=orderedFiles, arr=WordInAllDocument, arr2=wcount, dcount=dcount, i=0, input=inputQuery)
     else:
         documents = Documents.query.order_by(Documents.date_created).all()
         return render_template('index.html', documents=documents)
@@ -267,4 +267,4 @@ def howtouse():
     return render_template("howtouse.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,threaded=True)
