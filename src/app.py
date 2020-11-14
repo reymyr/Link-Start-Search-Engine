@@ -80,20 +80,20 @@ def index():
                     WordInAllDocument.append(word)
 
             # Count word frequency in file and query
-            queryTF = []
-            fileContentsTF = []
+            queryVector = []
+            fileContentsVector = []
             for word in WordInAllDocument:
-                queryTF.append(queryWordList.count(word))
-                fileContentsTF.append(fileContentsWordList.count(word))
+                queryVector.append(queryWordList.count(word))
+                fileContentsVector.append(fileContentsWordList.count(word))
 
             # Find dot product and magnitude of the vectors
             dotProduct = 0
             queryVectorLength = 0
             fileContentsVectorLength = 0
-            for i in range (len(queryTF)):
-                dotProduct += queryTF[i]*fileContentsTF[i]
-                queryVectorLength += queryTF[i]**2
-                fileContentsVectorLength += fileContentsTF[i]**2
+            for i in range (len(queryVector)):
+                dotProduct += queryVector[i]*fileContentsVector[i]
+                queryVectorLength += queryVector[i]**2
+                fileContentsVectorLength += fileContentsVector[i]**2
             queryVectorLength = math.sqrt(queryVectorLength)                  
             fileContentsVectorLength = math.sqrt(fileContentsVectorLength)
             
@@ -131,6 +131,7 @@ def index():
 
             i = 0
             for word in WordInAllDocument:
+                # wcount[i][j] = fileContentsWordList.count(word)
                 for word2 in fileContentsWordList:
                     if word == word2:
                         wcount[i][j] = wcount[i][j] + 1
